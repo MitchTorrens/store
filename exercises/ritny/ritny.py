@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """'Ring in the New Year' Solution (by Mitch Torrens)
 
 Implements the following algorithm and its inverse (from the similarly named
