@@ -1,0 +1,20 @@
+name: Super-Linter
+
+on: push
+
+jobs:
+  super-lint:
+    name: Lint All
+    runs-on: [ubuntu-18.04]
+
+    steps:
+      # Checks out a copy of repository on the ubuntu-18.04 machine
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      # Runs the Super-Linter action
+      - name: Run Super-Linter
+        uses: github/super-linter@v3
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
