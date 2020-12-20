@@ -1,0 +1,13 @@
+# bazel symlink directories
+/bazel-*
+
+# __pycache__ directories
+__pycache__
+
+# labeled files
+*.new
+*.old
+
+# VSCode workspace files
+*.vscode
+*.code-workspace
