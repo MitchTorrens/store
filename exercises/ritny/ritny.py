@@ -23,17 +23,14 @@ affects the intermediate Sort table state, and only in specific cases (excluding
 the two provided examples).
 """
 
+import logging
+import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
 from textwrap import dedent
-import sys
-import logging
 
+logging.basicConfig(format='%(message)s')
 
-logging.basicConfig(
-    format='%(message)s'
-)
-
-_MARKER = chr(0x10ffff) # str character upper limit
+_MARKER = chr(0x10FFFF)  # str character upper limit
 
 __all__ = ['mark_and_rotate', 'sort', 'last_chars', 'decode', 'encode']
 
@@ -69,29 +66,32 @@ def decode(coded_string, marker):
         raise ValueError(f"Only messages with exactly one marker character '{marker}' can be decoded.")
 
     sortable_string = coded_string.replace(marker, _MARKER)
-    last_column = list(sortable_string)
-    first_column = sorted(last_column)
+    last_table_column = list(sortable_string)  # from reversing step 6
+    first_table_column = sorted(last_table_column)  # depends only on set of letters, not on their order
 
-    adjacent_chars = []
-    edge_lookup = dict()
-    key = None
-    for i, f in enumerate(first_column):
-        adjacent_chars.append([last_column[i], f])
-        edge_lookup.setdefault(last_column[i], []).append(i)
+    # Set up adjacent char mapping lookups to facilitate (1-degree cyclic directed) graph traversal
+    adjacent_chars = []  # Sort table bookends: mapping of each char with its next char in original string
+    char_indices = dict()  # Indices of all char locations in last_table_column
+    for i, f in enumerate(first_table_column):
+        adjacent_chars.append([last_table_column[i], f])
+        char_indices.setdefault(last_table_column[i], []).append(i)
 
-    edge_indices = [None] * len(first_column)
+    # ordered mapping of last_table_column indices: each char in original string to its adjacent char
+    edge_indices = [None] * len(first_table_column)
     prev_key = None
     for left_index, left_key in enumerate(adjacent_chars):
         if left_key[1] != prev_key:
             prev_key = left_key[1]
-            ordered_char_mapping = iter(edge_lookup[left_key[1]])
+            ordered_char_mapping = iter(char_indices[left_key[1]])
+        # iterate through char indicies alphabetically
         edge_indices[left_index] = next(ordered_char_mapping)
 
-    node_index = last_column.index(_MARKER)
+    # Traverse the graph describing the mapping of each char in original string to its neighbour
+    node_index = last_table_column.index(_MARKER)  # Guarantee that decoded_sequence is built presorted
     decoded_sequence = []
     for i in range(len(edge_indices)):
-        decoded_sequence.append(adjacent_chars[node_index][1])
-        node_index = edge_indices[node_index]
+        decoded_sequence.append(adjacent_chars[node_index][1])  # look up next char in original string
+        node_index = edge_indices[node_index]  # store this char index (i.e. reference to current node)
 
     return ''.join(c for c in decoded_sequence).rstrip(_MARKER)
 
@@ -110,7 +110,7 @@ def main(argv):
         description=dedent(main.__doc__),
         formatter_class=lambda prog: RawTextHelpFormatter(prog, max_help_position=30))
     parser.add_argument('passwords', nargs='*', type=str, metavar='password',
-        help="List of strings to encode/decode.")
+                        help="List of strings to encode/decode.")
     parser.add_argument('-v', '--verbose', action='store_true', help='Show verbose output (intermediate states)')
     parser.add_argument('-m', '--marker', type=str, default='$', help="Marker character [default: '$']")
     args = parser.parse_args(argv)
@@ -126,9 +126,15 @@ def main(argv):
     if len(args.passwords) == 0:
         log.warn("No password(s) provided to encode/decode!\n")
         parser.print_help()
-        log.info("\nPreviewing encoder/decoder with default examples...\n" + \
-            f"$ ./ritny.py 'anagram' 'endrtednedd:/os....cp.rnnn.rhhps/.tt{args.marker}sfeaiaaofd.ow.otooapa.asu./thhse'")
-        args.passwords = ['anagram', f'endrtednedd:/os....cp.rnnn.rhhps/.tt{args.marker}sfeaiaaofd.ow.otooapa.asu./thhse']
+        log.info(
+            "\nPreviewing encoder/decoder with default examples...\n" +
+            "$ ./ritny.py 'anagram' "
+            f"'endrtednedd:/os....cp.rnnn.rhhps/.tt{args.marker}sfeaiaaofd.ow.otooapa.asu./thhse'"
+        )
+        args.passwords = [
+            'anagram',
+            f'endrtednedd:/os....cp.rnnn.rhhps/.tt{args.marker}sfeaiaaofd.ow.otooapa.asu./thhse'
+        ]
 
     log.debug(f"Using marker: '{args.marker}'...\n")
     outputs = []
@@ -155,6 +161,7 @@ def main(argv):
             outputs.append(output)
 
     log.info(' '.join(o for o in outputs))
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv[1:]))
