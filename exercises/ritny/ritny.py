@@ -28,10 +28,9 @@ import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
 from textwrap import dedent
 
-
 logging.basicConfig(format='%(message)s')
 
-_MARKER = chr(0x10ffff)  # str character upper limit
+_MARKER = chr(0x10FFFF)  # str character upper limit
 
 __all__ = ['mark_and_rotate', 'sort', 'last_chars', 'decode', 'encode']
 
@@ -88,7 +87,7 @@ def decode(coded_string, marker):
         edge_indices[left_index] = next(ordered_char_mapping)
 
     # Traverse the graph describing the mapping of each char in original string to its neighbour
-    node_index = last_table_column.index(_MARKER) # Guarantee that decoded_sequence is built presorted
+    node_index = last_table_column.index(_MARKER)  # Guarantee that decoded_sequence is built presorted
     decoded_sequence = []
     for i in range(len(edge_indices)):
         decoded_sequence.append(adjacent_chars[node_index][1])  # look up next char in original string

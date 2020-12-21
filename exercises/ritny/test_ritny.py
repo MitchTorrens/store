@@ -10,7 +10,6 @@ from collections import namedtuple
 
 import ritny
 
-
 log = logging.getLogger()
 
 
