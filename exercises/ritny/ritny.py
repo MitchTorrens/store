@@ -67,31 +67,36 @@ def decode(coded_string, marker):
     assert coded_string.count(_MARKER) == 0
     if coded_string.count(marker) != 1:
         raise ValueError(f"Only messages with exactly one marker character '{marker}' can be decoded.")
-
+    
     sortable_string = coded_string.replace(marker, _MARKER)
-    last_column = list(sortable_string)
-    first_column = sorted(last_column)
+    last_table_column = list(sortable_string) # from reversing step 6
+    first_table_column = sorted(last_table_column) # depends only on set of letters, not on their order
 
-    adjacent_chars = []
-    edge_lookup = dict()
+
+    # Set up adjacent char mapping lookups to facilitate (1-degree cyclic directed) graph traversal
+    adjacent_chars = [] # Sort table bookends: mapping of each char with its next char in original string
+    char_indices = dict() # Indices of all char locations in last_table_column
     key = None
-    for i, f in enumerate(first_column):
-        adjacent_chars.append([last_column[i], f])
-        edge_lookup.setdefault(last_column[i], []).append(i)
+    for i, f in enumerate(first_table_column):
+        adjacent_chars.append([last_table_column[i], f])
+        char_indices.setdefault(last_table_column[i], []).append(i)
 
-    edge_indices = [None] * len(first_column)
+    # ordered mapping of last_table_column indices: each char in original string to its adjacent char
+    edge_indices = [None] * len(first_table_column)
     prev_key = None
     for left_index, left_key in enumerate(adjacent_chars):
         if left_key[1] != prev_key:
             prev_key = left_key[1]
-            ordered_char_mapping = iter(edge_lookup[left_key[1]])
+            ordered_char_mapping = iter(char_indices[left_key[1]])
+        # iterate through char indicies alphabetically
         edge_indices[left_index] = next(ordered_char_mapping)
 
-    node_index = last_column.index(_MARKER)
+    # Traverse the graph describing the mapping of each char in original string to its neighbour
+    node_index = last_table_column.index(_MARKER) # Guarantee that decoded_sequence is built presorted
     decoded_sequence = []
     for i in range(len(edge_indices)):
-        decoded_sequence.append(adjacent_chars[node_index][1])
-        node_index = edge_indices[node_index]
+        decoded_sequence.append(adjacent_chars[node_index][1]) # look up next char in original string
+        node_index = edge_indices[node_index] # store this char index (i.e. reference to current node)
 
     return ''.join(c for c in decoded_sequence).rstrip(_MARKER)
 
