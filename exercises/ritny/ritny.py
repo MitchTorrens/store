@@ -25,8 +25,8 @@ the two provided examples).
 
 from argparse import ArgumentParser, RawTextHelpFormatter
 from textwrap import dedent
-import sys
 import logging
+import sys
 
 
 logging.basicConfig(
