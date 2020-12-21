@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """'Ring in the New Year' (ritny) - Tests"""
 
-from collections import namedtuple
 import logging
 import random
-import sys
 import string
+import sys
 import unittest
+from collections import namedtuple
 
 import ritny
 
