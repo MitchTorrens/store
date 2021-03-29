@@ -9,5 +9,5 @@
 # umask 022
 
 # set PATH so it includes user's private bins if they exists
-[ -d $HOME/bin ] && PATH="$HOME/bin:$PATH"
-[ -d $HOME/.local/bin ] && PATH="$HOME/.local/bin:$PATH"
+[ -d $HOME/bin ] && PATH="$HOME/bin${PATH:+:${PATH}}"
+[ -d $HOME/.local/bin ] && PATH="$HOME/.local/bin${PATH:+:${PATH}}"

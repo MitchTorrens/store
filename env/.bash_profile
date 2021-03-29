@@ -1,7 +1,6 @@
 if [[ -f $HOME/.profile ]]; then
-  source "$HOME/.profile"
+  . "$HOME/.profile"
 fi
-
 case "$-" in *i*) if [[ -f $HOME/.bashrc ]]; then
-  source "$HOME/.bashrc"
+  . "$HOME/.bashrc"
 fi;; esac
