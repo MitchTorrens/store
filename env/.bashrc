@@ -86,7 +86,8 @@ function ssh-off {
 export -f ssh-on ssh-off
 
 ssh-add -l &>/dev/null
-if [ "$?" == 2 ]; then
+case "$?" in
+2)  # No agent running
   test -r ~/.ssh-agent && \
     eval "$(<$HOME/.ssh-agent)" >/dev/null
 
@@ -96,7 +97,11 @@ if [ "$?" == 2 ]; then
     eval "$(<$HOME/.ssh-agent)" >/dev/null
     ssh-on
   fi
-fi
+  ;;
+1)  # Agent has no identities
+  ssh-on
+  ;;
+esac
 
 
 # Alias definitions.
