@@ -8,6 +8,19 @@
 # for ssh logins, install and configure the libpam-umask package.
 # umask 022
 
-# set PATH so it includes user's private bins if they exists
-[ -d $HOME/bin ] && PATH="$HOME/bin${PATH:+:${PATH}}"
-[ -d $HOME/.local/bin ] && PATH="$HOME/.local/bin${PATH:+:${PATH}}"
+# add (existing) directories listed to path
+prepend_paths="
+  $HOME/.local/bin
+  $HOME/bin"
+append_paths=""
+
+path_prefix=
+for pp in $prepend_paths; do
+  [ -d $pp ] && path_prefix="${path_prefix:+${path_prefix}:}$pp"
+done
+# maintain original order
+[ ! -z $path_prefix ] && PATH="$path_prefix${PATH:+:${PATH}}" 
+
+for ap in $append_paths; do
+  [ -d $ap ] && PATH="${PATH:+${PATH}:}$ap"
+done
