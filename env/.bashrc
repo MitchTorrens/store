@@ -92,17 +92,21 @@ case "$?" in
     eval "$(<$HOME/.ssh-agent)" >/dev/null
 
   ssh-add -l &>/dev/null
-  if [ "$?" == 2 ]; then
+  case "$?" in
+  2)  # No agent running
     (umask 066; ssh-agent > ~/.ssh-agent)
     eval "$(<$HOME/.ssh-agent)" >/dev/null
     ssh-on
-  fi
+    ;;
+  1)  # Agent has no identities
+    ssh-on
+    ;;
+  esac
   ;;
 1)  # Agent has no identities
   ssh-on
   ;;
 esac
-
 
 # Alias definitions.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
@@ -110,7 +114,7 @@ if [ -f ~/.bash_aliases ]; then
   . ~/.bash_aliases
 fi
 
-# Enable programmable completion features (you don't need to enable
+# enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
