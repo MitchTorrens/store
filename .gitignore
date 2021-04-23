@@ -15,3 +15,5 @@ __pycache__
 # VSCode workspace files
 *.vscode
 *.code-workspace
+
+*_deleteme*
