@@ -16,4 +16,4 @@ __pycache__
 *.vscode
 *.code-workspace
 
-*_deleteme*
+*_gitignore
