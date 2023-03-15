@@ -73,6 +73,16 @@ xterm*|rxvt*)
   ;;
 esac
 
+# from https://stackoverflow.com/a/65775291/3731500
+# TODO: consider how this integrates with the above.
+show_virtual_env() {
+  if [[ -n "$VIRTUAL_ENV" && -n "$DIRENV_DIR" ]]; then
+    echo "($(basename $VIRTUAL_ENV))"
+  fi
+}
+export -f show_virtual_env
+PS1='$(show_virtual_env)'$PS1
+
 # SSH agent and keys.
 # TODO: Investigate separating out keys between multiple agents.
 function ssh-on {
@@ -124,3 +134,5 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+eval "$(direnv hook bash)"
